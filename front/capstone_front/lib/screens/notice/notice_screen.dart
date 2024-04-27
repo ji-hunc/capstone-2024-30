@@ -30,9 +30,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
           await NoticeService.getNotices(lastCursor, selectedItem, language);
       setState(() {
         hasNext = res.hasNext;
-        if (hasNext) {
-          cursor = res.lastCursorId!;
-        }
+        cursor = hasNext ? res.lastCursorId! : cursor;
         notices.addAll(res.notices);
         itemCount += res.notices.length;
       });
