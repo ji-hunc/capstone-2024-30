@@ -1,13 +1,16 @@
 import 'package:capstone_front/models/helper_article_preview_model.dart';
 import 'package:capstone_front/screens/helper/helper_board/helper_writing_json.dart';
+import 'package:capstone_front/screens/helper/helper_board/helper_writing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class HelperWritingCard extends StatefulWidget {
   final HelperArticlePreviewModel helperArticlePreviewModel;
+  final List<HelperArticlePreviewModel> helperArticlePreviewModelList;
   const HelperWritingCard({
     super.key,
     required this.helperArticlePreviewModel,
+    required this.helperArticlePreviewModelList,
   });
 
   @override
@@ -18,9 +21,22 @@ class _HelperWritingCardState extends State<HelperWritingCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        context.push('/helper/writing',
-            extra: widget.helperArticlePreviewModel);
+      onTap: () async {
+        final int? deletedId = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HelperWritingScreen(
+              widget.helperArticlePreviewModel,
+            ),
+          ),
+        );
+
+        if (deletedId != null) {
+          setState(() {
+            widget.helperArticlePreviewModelList
+                .removeWhere((article) => article.id == deletedId);
+          });
+        }
       },
       child: Padding(
         padding:

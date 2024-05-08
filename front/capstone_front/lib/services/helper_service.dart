@@ -129,64 +129,30 @@ class HelperService {
     }
   }
 
-  // @@@@@ 이하 QnA 복붙 @@@@@
-
-  static Future<QnasResponse> searchQnaPosts(String query) async {
-    final url = Uri.parse('$baseUrl/yet/search?q=$query');
-    final response = await http.get(url);
-
-    List<QnaPostModel> qnaPostInstances = [];
-
-    final String decodedBody = utf8.decode(response.bodyBytes);
-    final jsonMap = jsonDecode(decodedBody);
-
-    if (response.statusCode == 200) {
-      final apiSuccessResponse = ApiSuccessResponse.fromJson(jsonMap);
-      final resMap = apiSuccessResponse.response;
-      final posts = resMap['posts'];
-
-      for (var post in posts) {
-        qnaPostInstances.add(QnaPostModel.fromJson(post));
-      }
-
-      var result = QnasResponse(
-        qnas: qnaPostInstances,
-        lastCursorId: jsonMap['lastCursorId'],
-        hasNext: jsonMap['hasNext'],
-      );
-
-      return result;
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
-      throw Exception('Failed to load QnA posts');
-    }
-  }
-
-  static Future<bool> toggleLike(int commentId) async {
-    final url = Uri.parse('$baseUrl/yet/commentLike');
-
-    final response = await http.post(
+  static Future<void> deleteArticle(int id) async {
+    FlutterSecureStorage storage = const FlutterSecureStorage();
+    final accessToken = await storage.read(key: "accessToken");
+    final url = Uri.parse('$baseUrl/help/erase?id=$id');
+    final response = await http.delete(
       url,
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
       },
-      body: jsonEncode({
-        "commentId": commentId,
-      }),
     );
 
     final String decodedBody = utf8.decode(response.bodyBytes);
     final jsonMap = jsonDecode(decodedBody);
-
     if (response.statusCode == 200) {
-      var apiSuccessResponse = jsonDecode(jsonMap);
+      // post 요청 성공시
+      var apiSuccessResponse = ApiSuccessResponse.fromJson(jsonMap);
 
-      return true;
+      return;
     } else {
       var apiFailResponse = ApiFailResponse.fromJson(jsonMap);
       print('Request failed with status: ${response.statusCode}.');
       print('Request failed with status: ${apiFailResponse.message}.');
-      throw Exception('Failed to load notices');
+      throw ('fail to post article');
     }
   }
 }

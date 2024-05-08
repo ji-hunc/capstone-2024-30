@@ -89,6 +89,7 @@ class _HelperBoardState extends State<HelperBoardScreen> {
                     }
                     return HelperWritingCard(
                       helperArticlePreviewModel: helperArticlePreviews[index],
+                      helperArticlePreviewModelList: helperArticlePreviews,
                     );
                   },
                 ),

@@ -6,6 +6,7 @@ import 'package:capstone_front/utils/basic_button.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
 class HelperWritingScreen extends StatefulWidget {
@@ -21,15 +22,28 @@ class HelperWritingScreen extends StatefulWidget {
 }
 
 class _HelperWritingScreenState extends State<HelperWritingScreen> {
+  FlutterSecureStorage storage = const FlutterSecureStorage();
   HelperArticleModel? helperArticleModel;
   bool isLoading = true;
+  bool isMyArticle = false;
 
   void loadDetail() async {
     helperArticleModel =
         await HelperService.getDetailById(widget.helperArticlePreviewModel.id);
+
+    var myUuid = await storage.read(key: "uuid");
+    if (myUuid == helperArticleModel!.uuid) {
+      isMyArticle = true;
+    }
+
     setState(() {
       isLoading = false;
     });
+  }
+
+  void deleteArticle() async {
+    await HelperService.deleteArticle(widget.helperArticlePreviewModel.id);
+    Navigator.pop(context, widget.helperArticlePreviewModel.id);
   }
 
   @override
@@ -46,6 +60,32 @@ class _HelperWritingScreenState extends State<HelperWritingScreen> {
           title: Text(
             tr('helper.helper'),
           ),
+          actions: isMyArticle
+              ? [
+                  PopupMenuButton(
+                    onSelected: (String value) {
+                      // 메뉴 선택 시 행동 지정
+                      if (value == 'edit') {
+                        // 수정하기 동작
+                      } else if (value == 'delete') {
+                        deleteArticle();
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('수정하기'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('삭제하기'),
+                      ),
+                    ],
+                    icon: const Icon(Icons.more_vert_rounded),
+                    elevation: 0,
+                  )
+                ]
+              : [],
         ),
         body: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20),
