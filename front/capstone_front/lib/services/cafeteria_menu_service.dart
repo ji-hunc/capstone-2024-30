@@ -28,7 +28,7 @@ Future<CafeteriaMenuModel> getCafeteriaMenu(String date) async {
 
   if (response.statusCode == 200) {
     // print(json['response']);
-    return CafeteriaMenuModel.fromJson(json['response'], date, language!);
+    return CafeteriaMenuModel.fromJson(json['response'], date, language);
   } else {
     var apiFailResponse = ApiFailResponse.fromJson(json);
     print('Request failed with status: ${response.statusCode}.');
